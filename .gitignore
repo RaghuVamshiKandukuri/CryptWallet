@@ -1,0 +1,73 @@
+# Django specific
+*.log
+*.pot
+*.pyc
+__pycache__/
+db.sqlite3
+*.sqlite3
+
+# Ignore Django migrations
+**/migrations/**
+
+# If you are using Django static files
+/staticfiles/
+/mediafiles/
+/static/
+/media/
+
+# Ignore virtual environments
+venv/
+env/
+*/env/
+*.env
+
+# VS Code files
+.vscode/
+
+# PyCharm files
+.idea/
+
+# macOS files
+.DS_Store
+
+# Node modules (if you use Node.js for front-end assets)
+node_modules/
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+
+# Test and cache files
+.tox/
+.nox/
+.cache/
+.pytest_cache/
+
+# MyPy and other linting
+.mypy_cache/
+.dmypy.json
+.pyre/
+
+# Generated files from pip or other dependency managers
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Environment variables file
+.env
+.env.*
+
+# Other temporary files
+*.bak
+*.swp
+*.tmp
+*.temp
+*.old
+*.orig
+*.backup
+~$*
+
+# Ignore build artifacts
+*.egg-info/
+dist/
+build/

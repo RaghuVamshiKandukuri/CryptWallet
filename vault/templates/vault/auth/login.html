@@ -3,49 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>CryptWallet - Login</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background: #f8f9fa;
+            background-color: #121212;
+            color: #f8f9fa;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
         }
+        .home-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #00d9ff;
+            font-weight: bold;
+            text-decoration: none;
+        }
         .login-container {
             width: 100%;
             max-width: 400px;
             padding: 2rem;
-            border-radius: 0.5rem;
-            background: #ffffff;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-        .form-control:focus {
-            border-color: #4e73df;
-            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+            background: #1f1f1f;
+            box-shadow: 0 4px 20px rgba(0, 255, 255, 0.2);
         }
         .login-title {
             font-size: 2rem;
-            color: #4e73df;
+            color: #00d9ff;
             text-align: center;
-            margin-bottom: 1.5rem;
         }
         .btn-login {
             background-color: #4e73df;
             color: #ffffff;
-            font-weight: bold;
-        }
-        .error-message {
-            color: #e74a3b;
-            text-align: center;
         }
     </style>
 </head>
 <body>
+    <a href="{% url 'main' %}" class="home-link">Home</a>
     <div class="login-container">
-        <h2 class="login-title">Welcome Back</h2>
+        <h2 class="login-title">Login to CryptWallet</h2>
         {% if error_message %}
             <p class="error-message">{{ error_message }}</p>
         {% endif %}

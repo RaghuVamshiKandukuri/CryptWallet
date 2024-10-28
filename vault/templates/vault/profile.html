@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="{% static 'vault/styles.css' %}"> <!-- Link to your CSS file -->
+</head>
+<body>
+    <header>
+        <h1>User Profile</h1>
+        <nav>
+            <ul>
+                <li><a href="{% url 'index' %}">Home</a></li>
+                <li><a href="{% url 'logout' %}">Logout</a></li>
+                <li><a href="{% url 'profile' %}">Profile</a></li>  <!-- Link to profile -->
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h2>Welcome, {{ user.username }}!</h2>
+            <p>Email: {{ user.email }}</p>
+            <p>Joined on: {{ user.date_joined }}</p>
+            <!-- Add more user details as needed -->
+        </section>
+
+        <section>
+            <h3>Your Files</h3>
+            <ul>
+                <!-- Assuming you have a list of files associated with the user -->
+                {% for file in user.files.all %}
+                    <li>{{ file.name }} - <a href="{{ file.url }}">Download</a></li>
+                {% empty %}
+                    <li>No files uploaded.</li>
+                {% endfor %}
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 CryptWallet. All rights reserved.</p>
+    </footer>
+</body>
+</html>

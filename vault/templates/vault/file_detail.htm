@@ -1,0 +1,10 @@
+<!-- vault/templates/vault/file_detail.html -->
+<h2>{{ file.file.name }}</h2>
+<p>Uploaded by: {{ file.user.username }}</p>
+<p>Public: {{ file.is_public }}</p>
+{% if not file.is_public and request.user != file.user %}
+    <form action="{% url 'request_file_access' file.id %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Request Access</button>
+    </form>
+{% endif %}

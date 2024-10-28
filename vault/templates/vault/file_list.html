@@ -1,0 +1,8 @@
+<!-- vault/templates/vault/file_list.html -->
+<h2>Your Files</h2>
+<ul>
+    {% for file in files %}
+        <li>{{ file.file.name }} - <a href="{% url 'file_detail' file.id %}">View</a></li>
+    {% endfor %}
+</ul>
+<a href="{% url 'file_upload' %}">Upload a new file</a>
