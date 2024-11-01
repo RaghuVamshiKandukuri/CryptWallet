@@ -18,6 +18,8 @@ db.sqlite3
 # Ignore virtual environments
 venv/
 env/
+.env/
+.venv
 */env/
 *.env
 
