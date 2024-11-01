@@ -1,7 +1,51 @@
-<!-- vault/templates/vault/file_upload.html -->
-<h2>Upload a File</h2>
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Upload</button>
-</form>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload File</title>
+</head>
+<body>
+    <header>
+        <h1>Upload a New File</h1>
+        <nav>
+            <ul>
+                <li><a href="{% url 'index' %}">Home</a></li>
+                <li><a href="{% url 'file_list' %}">My Files</a></li>
+                <li><a href="{% url 'profile' %}">Profile</a></li>
+                <li><a href="{% url 'logout' %}">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label for="file_data">Select File:</label>
+            <input type="file" name="file_data" id="file_data" required>
+            <br><br>
+
+            <label for="privacy_setting">Privacy Setting:</label>
+            <select name="privacy_setting" id="privacy_setting">
+                <option value="private">Private</option>
+                <option value="public">Public</option>
+            </select>
+            <br><br>
+
+            <button type="submit">Upload File</button>
+        </form>
+
+        {% if error_message %}
+            <p style="color: red;">{{ error_message }}</p>
+        {% endif %}
+
+        {% if success_message %}
+            <p style="color: green;">{{ success_message }}</p>
+        {% endif %}
+    </main>
+
+    <footer>
+        <p>&copy; 2024 CryptWallet. All rights reserved.</p>
+    </footer>
+</body>
+</html>

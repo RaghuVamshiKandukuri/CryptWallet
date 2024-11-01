@@ -1,6 +1,8 @@
-
+from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import path, include
 from .views import * 
+from django.contrib import admin
 
 urlpatterns = [
     path("", main, name="main"),
@@ -13,7 +15,19 @@ urlpatterns = [
     path('files/', file_list_view, name='file_list'),
     path('files/<int:file_id>/', file_detail_view, name='file_detail'),
     path('files/<int:file_id>/request_access/', request_file_access, name='request_file_access'),
+    path('files/<int:file_id>/download/', download_file, name='download_file'),
+    path('files/<int:file_id>/share/', share_file, name='share_file'),
     path('profile/', profile, name='profile'),
     path('messages/', messages, name='messages'),
     path('settings/', settings, name='settings'),
-]
+    
+    
+] 
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+    
+    
+    
+    
