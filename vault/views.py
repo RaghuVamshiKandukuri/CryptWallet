@@ -22,6 +22,8 @@ from django.contrib.auth import logout
 
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from .utils import decrypt_file
+
 
 
 
@@ -91,6 +93,7 @@ def logout_view(request):
 
 
 def encrypt_file(file_data, password):
+    # Encrypt the file using AES encryption
     salt = os.urandom(16)
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
@@ -105,7 +108,6 @@ def encrypt_file(file_data, password):
     encryptor = cipher.encryptor()
     encrypted_data = encryptor.update(file_data) + encryptor.finalize()
     return salt + iv + encrypted_data
-
 
 
 def decrypt_file(encrypted_data, password):
@@ -131,52 +133,70 @@ def decrypt_file(encrypted_data, password):
 
 
 
+
 @login_required
 def upload_file(request):
     if request.method == 'POST':
         form = FileUploadForm(request.POST, request.FILES)
         if form.is_valid():
-            file_data = request.FILES['file_data']
-            privacy_setting = form.cleaned_data['privacy_setting']
-            owner = request.user
+            uploaded_file = request.FILES['file']
+            file_data = uploaded_file.read()
+            key = b'Sixteen byte key'  # Ensure this key matches AES-128 length
 
-            # Encrypt the file
-            encrypted_data = encrypt_file(file_data.read(), 'secure_password')  # Update 'secure_password' as needed
-            file_name = file_data.name
-            file_path = f"{settings.MEDIA_ROOT}/{file_name}.enc"
+            encrypted_data = encrypt_file(file_data, key)
 
-            # Save the encrypted file
-            with open(file_path, 'wb') as f:
-                f.write(encrypted_data)
-
-            # Save file metadata
-            FileMetadata.objects.create(
-                file_name=file_name,
-                file_path=file_path,
-                owner=owner,
-                privacy_setting=privacy_setting
+            file_metadata = FileMetadata.objects.create(
+                user=request.user,
+                file_name=uploaded_file.name,
+                encrypted_file=encrypted_data
             )
-            return redirect('file_list')
+            return redirect('success_page')
     else:
         form = FileUploadForm()
-    return render(request, 'vault/file_upload.html', {'form': form})
+    
+    return render(request, 'upload.html', {'form': form})
 
+
+def download_file(request, file_id):
+    file = get_object_or_404(FileMetadata, id=file_id, user=request.user)
+    encrypted_data = file.encrypted_file
+
+    # Decrypt the data
+    password = "secure_password"  # Replace with correct key
+    decrypted_data = decrypt_file(encrypted_data, password)
+
+    response = HttpResponse(decrypted_data, content_type='application/octet-stream')
+    response['Content-Disposition'] = f'attachment; filename="{file.file_name}"'
+    return response
 
 
 
 #new after 
+
 @login_required
 def file_upload_view(request):
     if request.method == 'POST':
         form = FileUploadForm(request.POST, request.FILES)
         if form.is_valid():
-            file_metadata = form.save(commit=False)
-            file_metadata.user = request.user
-            file_metadata.save()
+            uploaded_file = request.FILES['file_name']  # File field in FileUploadForm
+            file_data = uploaded_file.read()
+            
+            # Encrypt file data before storing it
+            password = "secure_password"  # Replace with user-specific or generated key
+            encrypted_data = encrypt_file(file_data, password)
+            
+            # Save encrypted file metadata to the database
+            file_metadata = FileMetadata.objects.create(
+                user=request.user,
+                file_name=uploaded_file.name,
+                encrypted_file=encrypted_data
+            )
             return redirect('file_list')
     else:
         form = FileUploadForm()
+    
     return render(request, 'vault/file_upload.html', {'form': form})
+
 
 @login_required
 def file_list_view(request):
@@ -272,3 +292,24 @@ def profile(request):
         form = ProfileUpdateForm(instance=request.user)
 
     return render(request, 'vault/profile.html', {'form': form})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

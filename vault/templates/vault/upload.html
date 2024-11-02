@@ -1,10 +1,5 @@
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    <label for="file">Upload File:</label>
-    <input type="file" name="file" id="file" required>
-
-    <label for="is_public">Make File Public?</label>
-    <input type="checkbox" name="is_public" id="is_public">
-
+    {{ form.as_p }}
     <button type="submit">Upload</button>
 </form>
