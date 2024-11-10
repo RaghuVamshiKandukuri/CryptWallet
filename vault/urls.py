@@ -13,15 +13,9 @@ urlpatterns = [
     path("register/", register, name="register"),
     path('logout/', logout_view, name='logout'),
     path('index/',index,name='index'),
-    path('upload/', file_upload_view, name='file_upload'),
-    path('files/', file_list_view, name='file_list'),
-    path('files/<int:file_id>/', file_detail_view, name='file_detail'),
-    path('files/<int:file_id>/request_access/', request_file_access, name='request_file_access'),
-    path('files/<int:file_id>/download/', download_file, name='download_file'),
-    path('files/<int:file_id>/share/', share_file, name='share_file'),
     path('profile/', profile, name='profile'),
-    path('messages/', messages, name='messages'),
     path('settings/', settings, name='settings'),
+    path('file_upload/', file_upload, name='file_upload')
     
     
 ] 
