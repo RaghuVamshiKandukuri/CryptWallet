@@ -125,20 +125,10 @@ def profile(request):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+def delete_file(request, file_id):
+    if request.method == "POST":
+        file = get_object_or_404(UploadedFile, id=file_id)  # Change 'UploadedFile' to your model name
+        file.file.delete()  # Deletes the file from storage
+        file.delete()  # Deletes the database record
+        messages.success(request, "File deleted successfully.")
+    return redirect('file_upload')  # Redirect to the file upload page

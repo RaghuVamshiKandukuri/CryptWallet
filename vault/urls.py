@@ -6,6 +6,7 @@ from django.urls import path, include
 from .views import * 
 from django.contrib import admin
 
+
 urlpatterns = [
     path("", main, name="main"),
     path('main/',main, name='main'),
@@ -15,8 +16,8 @@ urlpatterns = [
     path('index/',index,name='index'),
     path('profile/', profile, name='profile'),
     path('settings/', settings, name='settings'),
-    path('file_upload/', file_upload, name='file_upload')
-    
+    path('file_upload/', file_upload, name='file_upload'),
+    path('delete/<int:file_id>/', delete_file, name='delete_file'),
     
 ] 
 
