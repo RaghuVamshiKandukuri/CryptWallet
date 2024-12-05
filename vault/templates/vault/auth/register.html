@@ -3,49 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
+    <title>Register - CryptWallet</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        /* Common Styles */
         body {
-            background: #121212;
-            color: white;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
         }
-        .register-container {
-            width: 100%;
+
+        /* Theme 1 Styles */
+        .theme1 {
+            background: linear-gradient(135deg, #141E30, #243B55);
+            color: #00E6FF;
+        }
+        .theme1 .register-container {
+            max-width: 500px;
+            padding: 30px;
+            background: #1F1F1F;
+            box-shadow: 0 0 15px rgba(0, 230, 255, 0.3);
+            border-radius: 10px;
+            animation: fadeIn 1.5s ease-in-out;
+        }
+        .theme1 .register-title {
+            font-size: 2.5rem;
+            color: #00E6FF;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 10px #00E6FF, 0 0 20px #00E6FF;
+        }
+        .theme1 .form-control {
+            background-color: #121212;
+            border: 2px solid #00E6FF;
+            color: #00E6FF;
+        }
+        .theme1 .btn-register {
+            background-color: #00E6FF;
+            color: #1F1F1F;
+            font-weight: bold;
+        }
+
+        /* Theme 2 Styles */
+        .theme2 {
+            background: #121212;
+            color: white;
+        }
+        .theme2 .register-container {
             max-width: 450px;
             padding: 2rem;
             background: #1f1f1f;
             box-shadow: 0 4px 20px rgba(0, 255, 255, 0.2);
         }
-        .register-title {
+        .theme2 .register-title {
             font-size: 2rem;
             color: #4e73df;
             text-align: center;
         }
-        .btn-register {
+        .theme2 .btn-register {
             background-color: #4e73df;
             color: #ffffff;
         }
-        footer {
-            text-align: center;
-            padding: 10px 0;
-            background-color: #0D6EFD;
-            color: white;
+
+        /* Common Button and Label Styles */
+        .btn-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #007B9E;
+            color: #ffffff;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn-toggle:hover {
+            background-color: #005f7a;
+        }
+        label, .form-control {
+            transition: all 0.3s ease;
+        }
+        .form-control:focus {
+            box-shadow: none;
+        }
+
+        /* Fade-in animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
-<body>
+<body class="theme1">
+    <!-- Toggle Theme Button -->
+    <button class="btn-toggle" onclick="toggleTheme()">Toggle Theme</button>
+
     <div class="register-container">
-        <h2 class="register-title">Create Account</h2>
+        <!-- Register title -->
+        <h2 class="register-title">Create Your Account</h2>
+        
         {% if error_message %}
             <p class="error-message">{{ error_message }}</p>
         {% endif %}
+
+        <!-- Registration form -->
         <form method="post" action="{% url 'register' %}">
             {% csrf_token %}
+            <div class="form-group">
+                <label for="first_name">First Name</label>
+                <input type="text" name="first_name" id="first_name" class="form-control" placeholder="Enter first name" required>
+            </div>
+            <div class="form-group">
+                <label for="last_name">Last Name</label>
+                <input type="text" name="last_name" id="last_name" class="form-control" placeholder="Enter last name" required>
+            </div>
             <div class="form-group">
                 <label for="username">Username</label>
                 <input type="text" name="username" id="username" class="form-control" placeholder="Enter username" required>
@@ -64,9 +138,18 @@
             </div>
             <button type="submit" class="btn btn-register btn-block">Register</button>
         </form>
+
+        <!-- Login link -->
         <p class="text-center mt-3">
             Already have an account? <a href="{% url 'login' %}" class="text-primary">Login here</a>
         </p>
     </div>
+
+    <script>
+        function toggleTheme() {
+            document.body.classList.toggle('theme1');
+            document.body.classList.toggle('theme2');
+        }
+    </script>
 </body>
 </html>

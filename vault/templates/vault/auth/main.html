@@ -7,51 +7,134 @@
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        /* General Layout */
         body {
-            background-color: #121212;
+            background-color: #0d0d0d;
             color: #f8f9fa;
             font-family: 'Roboto', sans-serif;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            overflow-x: hidden;
         }
+
+        /* Navbar */
         .navbar {
-            background-color: #0D6EFD;
+            background: linear-gradient(135deg, #1A73E8, #0057e7);
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.4);
         }
+
+        /* Animated Gradient Header Section */
         .header-section {
             text-align: center;
-            padding: 80px 20px;
-            background: linear-gradient(135deg, #0D6EFD, #00d9ff);
-            border-bottom: 5px solid #ffffff;
+            padding: 100px 20px;
+            color: #f8f9fa;
+            position: relative;
+            background: linear-gradient(135deg, #0039d1, #0099ff, #00e5ff);
+            background-size: 400% 400%;
+            animation: gradientAnimation 10s ease infinite;
+            border-bottom: 3px solid #00c4ff;
+            overflow: hidden;
         }
+
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
         .header-section h1 {
-            font-size: 2.5rem;
-            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 0px 6px 12px rgba(0, 0, 0, 0.5);
+            letter-spacing: 2px;
         }
+
+        .header-section p {
+            font-size: 1.25rem;
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+
+        .header-section .btn {
+            padding: 12px 30px;
+            font-size: 1.3rem;
+            color: #0d0d0d;
+            font-weight: bold;
+            background: #00c4ff;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+        }
+        .header-section .btn:hover {
+            background: #ffffff;
+            color: #0039d1;
+            transform: scale(1.05);
+        }
+
+        /* Features Section */
         .features-section {
-            padding: 60px 20px;
+            padding: 70px 15px;
             flex-grow: 1;
+            background-color: #121212;
         }
         .feature-box {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 30px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            padding: 40px;
             margin-bottom: 30px;
-            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0px 12px 25px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            transform-style: preserve-3d;
+            transform: perspective(1000px);
+            overflow: hidden;
+            position: relative;
         }
+        .feature-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
+            transform: rotate(45deg);
+        }
+        .feature-box:hover {
+            transform: scale(1.05);
+            box-shadow: 0px 15px 30px rgba(0, 0, 0, 0.4);
+        }
+        .feature-box h4 {
+            font-size: 1.5rem;
+            color: #00c4ff;
+            margin-bottom: 15px;
+        }
+        .feature-box p {
+            font-size: 1rem;
+            color: #dddddd;
+        }
+
+        /* Footer */
         .footer {
             text-align: center;
-            padding: 10px;
-            background-color: #0D6EFD;
-            color: white;
+            padding: 20px;
+            background: linear-gradient(135deg, #0039d1, #1A73E8);
+            color: #f8f9fa;
+            font-size: 0.9rem;
+            box-shadow: 0px -2px 15px rgba(0, 0, 0, 0.4);
+            border-top: 3px solid #00c4ff;
         }
     </style>
 </head>
 <body>
+
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <a class="navbar-brand" href="#">CryptWallet</a>
-        <div class="collapse navbar-collapse">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'register' %}">Register</a></li>
@@ -59,14 +142,16 @@
         </div>
     </nav>
 
+    <!-- Header Section -->
     <div class="header-section">
         <h1>Welcome to CryptWallet</h1>
         <p>Your one-stop platform for secure file sharing and encrypted communication.</p>
-        <a href="{% url 'register' %}" class="btn btn-light btn-lg">Get Started</a>
+        <a href="{% url 'register' %}" class="btn btn-lg">Get Started</a>
     </div>
 
+    <!-- Features Section -->
     <div class="features-section container">
-        <div class="row pr-2">
+        <div class="row">
             <div class="col-md-4 feature-box">
                 <h4>User Authentication & Authorization</h4>
                 <p>Secure and reliable user access control to protect your files and data.</p>
@@ -82,8 +167,14 @@
         </div>
     </div>
 
+    <!-- Footer -->
     <footer class="footer">
         <p>&copy; 2024 CryptWallet. All Rights Reserved.</p>
     </footer>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

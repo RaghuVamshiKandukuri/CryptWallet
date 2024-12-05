@@ -68,6 +68,8 @@ def register(request):
         email = request.POST['email']
         password = request.POST['password']
         confirm_password = request.POST['confirm_password']
+        first_name = request.POST['first_name']
+        last_name = request.POST['last_name']
         
         if password == confirm_password:
             if User.objects.filter(username=username).exists():
@@ -75,7 +77,14 @@ def register(request):
             elif User.objects.filter(email=email).exists():
                 error_message = "Email is already in use. Please use a different email."
             else:
-                user = User.objects.create_user(username=username, email=email, password=password)
+                # Create user with first name and last name
+                user = User.objects.create_user(
+                    username=username,
+                    email=email,
+                    password=password,
+                    first_name=first_name,
+                    last_name=last_name
+                )
                 django_login(request, user)
                 return redirect('index')
         else:
