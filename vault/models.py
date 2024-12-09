@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils.timezone import now
 
 
 class UploadedFile(models.Model):
@@ -20,3 +21,19 @@ class UserProfile(models.Model):
     def __str__(self):
         return f"{self.user.username}'s Profile"
     
+
+class AuditLog(models.Model):
+    ACTIONS = [
+        ('UPLOAD', 'Upload'),
+        ('DOWNLOAD', 'Download'),
+        ('DELETE', 'Delete'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="audit_logs")
+    action = models.CharField(max_length=10, choices=ACTIONS)
+    file_name = models.CharField(max_length=255)
+    timestamp = models.DateTimeField(default=now)
+    details = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.action} - {self.file_name} - {self.timestamp}"

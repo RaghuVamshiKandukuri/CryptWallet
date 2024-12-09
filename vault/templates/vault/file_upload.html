@@ -22,7 +22,8 @@
             color: #FF6B6B;
             font-size: 0.9em;
             cursor: pointer;
-}
+        }
+        
         .container {
             max-width: 1000px;
             margin: 50px auto;
@@ -34,10 +35,13 @@
             box-shadow: 0 0 10px rgba(0, 230, 255, 0.3);
         }
 
+        
+
         .btn-cyber {
             border-radius: 8px;
             font-weight: bold;
             padding: 10px 15px;
+            margin: 10px auto;
             transition: all 0.2s;
             background: #00E6FF;
             color: #1F1F1F;
@@ -116,15 +120,25 @@
             {% for file in files %}
                 <li class="list-group-item">
                     <a href="{{ file.file.url }}" target="_blank" style="color: #00E6FF;">{{ file.file.name }}</a>
-                    <form method="post" action="{% url 'delete_file' file.id %}" style="display: inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="delete-btn">Delete</button>
-                    </form>
+                    <div>
+                        <!-- Delete Button -->
+                        <form method="post" action="{% url 'delete_file' file.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="delete-btn">Delete</button>
+                        </form>
+
+                        <!-- Download Button -->
+                        <form method="get" action="{% url 'download_file' file.id %}" style="display: inline;">
+                            <button type="submit" class="btn btn-cyber">Download</button>
+                        </form>
+                    </div>
                 </li>
             {% empty %}
                 <li class="list-group-item">No files uploaded yet.</li>
             {% endfor %}
         </ul>
+
+        <a href="{% url 'audit_logs' %}" class="btn btn-cyber">Go to Audit Log</a>
         
     </div>
 

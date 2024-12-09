@@ -15,9 +15,11 @@ urlpatterns = [
     path('logout/', logout_view, name='logout'),
     path('index/',index,name='index'),
     path('profile/', profile, name='profile'),
-    path('settings/', settings, name='settings'),
+    path('setting/', setting, name='setting'),
     path('file_upload/', file_upload, name='file_upload'),
     path('delete/<int:file_id>/', delete_file, name='delete_file'),
+    path('download/<int:file_id>/', download_file, name='download_file'),
+    path('audit-logs/', audit_logs, name='audit_logs'),
     
 ] 
 

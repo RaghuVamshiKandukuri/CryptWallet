@@ -1,5 +1,6 @@
+from fileinput import filename
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login as django_login
 from django.urls import reverse
@@ -19,18 +20,160 @@ from django.core.files.base import ContentFile
 
 
 from .forms import FileUploadForm
-from .models import UploadedFile
+
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from cryptography.hazmat.primitives.hashes import SHA256
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.backends import default_backend
+import secrets
+import os
+
+
+from .models import AuditLog
+
+# Generate a secure encryption key using a password and salt
+def generate_key(password: str, salt: bytes) -> bytes:
+    if not password or not isinstance(password, str):
+        raise ValueError("Password must be a non-empty string.")
+    
+    kdf = PBKDF2HMAC(
+        algorithm=SHA256(),
+        length=32,
+        salt=salt,
+        iterations=100000,
+        backend=default_backend()
+    )
+    return kdf.derive(password.encode())
+
+# Encrypt a file with AES encryption
+def encrypt_file(input_file, output_file, password: str):
+    if not password:
+        raise ValueError("A password is required for encryption.")
+    
+    # Generate a salt and an IV
+    salt = secrets.token_bytes(16)
+    iv = secrets.token_bytes(16)
+    key = generate_key(password, salt)
+    
+    cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
+    encryptor = cipher.encryptor()
+
+    # Write salt and IV to the output file
+    output_file.write(salt)
+    output_file.write(iv)
+
+    # Encrypt the file in chunks
+    while chunk := input_file.read(64 * 1024):
+        output_file.write(encryptor.update(chunk))
+    output_file.write(encryptor.finalize())
+
+# Decrypt a file with AES decryption
+def decrypt_file(encrypted_file_path: str, password: str) -> bytes:
+    if not password:
+        raise ValueError("A password is required for decryption.")
+
+    with open(encrypted_file_path, 'rb') as encrypted_file:
+        # Read salt and IV from the file
+        salt = encrypted_file.read(16)
+        iv = encrypted_file.read(16)
+
+        # Derive the encryption key
+        key = generate_key(password, salt)
+
+        cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
+        decryptor = cipher.decryptor()
+
+        # Decrypt the file content
+        decrypted_data = decryptor.update(encrypted_file.read()) + decryptor.finalize()
+
+    return decrypted_data
+
+
+
 
 def file_upload(request):
     if request.method == 'POST':
         form = FileUploadForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            uploaded_file = request.FILES['file']
+            password = "secure_password"  # Replace with a secure password or user-provided input
+            original_file_name = uploaded_file.name
+            encrypted_file_path = os.path.join(settings.MEDIA_ROOT, 'uploads', original_file_name + '.enc')
+
+            # Ensure the directory exists
+            os.makedirs(os.path.dirname(encrypted_file_path), exist_ok=True)
+
+            # Encrypt the file
+            with uploaded_file.open('rb') as infile, open(encrypted_file_path, 'wb') as outfile:
+                encrypt_file(infile, outfile, password)
+
+            # Save file metadata
+            UploadedFile.objects.create(file='uploads/' + original_file_name + '.enc')
+
+            AuditLog.objects.create(
+                user=request.user,
+                action='UPLOAD',
+                file_name=original_file_name,
+                details="File uploaded and encrypted."
+            )
+
+
+            messages.success(request, "File uploaded and encrypted successfully.")
             return redirect('file_upload')
     else:
         form = FileUploadForm()
+
     files = UploadedFile.objects.all()
     return render(request, 'vault/file_upload.html', {'form': form, 'files': files})
+
+# File download view
+def download_file(request, file_id):
+    file_obj = get_object_or_404(UploadedFile, id=file_id)
+    encrypted_file_path = os.path.join(settings.MEDIA_ROOT, file_obj.file.name)
+    original_file_name = os.path.basename(file_obj.file.name).replace('.enc', '')
+
+    password = "secure_password"  # Replace with the same password used for encryption
+
+    try:
+        decrypted_data = decrypt_file(encrypted_file_path, password)
+
+        AuditLog.objects.create(
+            user=request.user,
+            action='DOWNLOAD',
+            file_name=original_file_name,
+            details="File decrypted and downloaded."
+        )
+
+        # Serve the decrypted file for download
+        response = HttpResponse(decrypted_data, content_type='application/octet-stream')
+        response['Content-Disposition'] = f'attachment; filename="{original_file_name}"'
+        return response
+
+    except Exception as e:
+        print(f"Decryption error: {e}")
+        raise Http404("File could not be decrypted or found.")
+
+
+
+
+def delete_file(request, file_id):
+    file_obj = get_object_or_404(UploadedFile, id=file_id)
+    original_file_name = os.path.basename(file_obj.file.name).replace('.enc', '')
+    if request.method == "POST":
+        file = get_object_or_404(UploadedFile, id=file_id)  # Change 'UploadedFile' to your model name
+        file.file.delete()  # Deletes the file from storage
+        file.delete()  # Deletes the database record
+
+        AuditLog.objects.create(
+            user=request.user,
+            action='DELETE',
+            file_name=original_file_name,
+            details="File deleted from storage."
+        )
+        
+        messages.success(request, "File deleted successfully.")
+    return redirect('file_upload')  # Redirect to the file upload page
+
 
 
 
@@ -105,16 +248,16 @@ def logout_view(request):
 
 
 
-def settings(request):
+def setting(request):
     # Sample context data for settings
     context = {
-        'settings': {
+        'setting': {
             'email_notifications': True,
             'sms_alerts': False,
             'dark_mode': True,
         }
     }
-    return render(request, 'vault/settings.html', context)
+    return render(request, 'vault/setting.html', context)
 
 
 
@@ -134,10 +277,14 @@ def profile(request):
 
 
 
-def delete_file(request, file_id):
-    if request.method == "POST":
-        file = get_object_or_404(UploadedFile, id=file_id)  # Change 'UploadedFile' to your model name
-        file.file.delete()  # Deletes the file from storage
-        file.delete()  # Deletes the database record
-        messages.success(request, "File deleted successfully.")
-    return redirect('file_upload')  # Redirect to the file upload page
+
+
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def audit_logs(request):
+    logs = AuditLog.objects.filter(user=request.user).order_by('-timestamp')
+    return render(request, 'vault/audit_logs.html', {'logs': logs})
+
+
+

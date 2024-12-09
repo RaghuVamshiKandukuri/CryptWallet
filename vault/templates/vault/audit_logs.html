@@ -1,32 +1,164 @@
-<!-- vault/templates/vault/audit_logs.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Audit Logs</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Logs - CryptWallet</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+            transition: background 0.3s ease;
+        }
+
+        .container {
+            max-width: 1200px;
+            padding: 20px;
+            animation: fadeIn 2s ease-in-out;
+        }
+
+        /* Logo title */
+        .logo-title {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #00E6FF;
+        }
+
+        /* Table styling */
+        .table {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        /* Button styles */
+        .btn-cyber {
+            border-radius: 8px;
+            font-weight: bold;
+            padding: 10px 15px;
+            transition: all 0.2s;
+        }
+
+        /* Theme specific styles */
+        /* Default Dark Blue Theme */
+        body.dark-blue {
+            background: linear-gradient(135deg, #141E30, #243B55);
+            color: #00E6FF;
+        }
+
+        .dark-blue .table {
+            background-color: #1F1F1F;
+            color: #00E6FF;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .dark-blue .btn-cyber {
+            color: #00E6FF;
+            background: #1F1F1F;
+            border: 1px solid #00E6FF;
+        }
+
+        /* Light Theme */
+        body.light {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .light .table {
+            background-color: #fff;
+            color: #333;
+        }
+
+        .light .btn-cyber {
+            color: #333;
+            background: #fff;
+            border: 1px solid #ddd;
+        }
+
+        /* Cyber Neon Theme */
+        body.cyber-neon {
+            background: linear-gradient(135deg, #000000, #222222);
+            color: #39FF14;
+        }
+
+        .cyber-neon .table {
+            background-color: #000;
+            color: #39FF14;
+            border: 1px solid #39FF14;
+        }
+
+        .cyber-neon .btn-cyber {
+            color: #39FF14;
+            background: #000;
+            border: 1px solid #39FF14;
+            box-shadow: 0 0 10px #39FF14;
+        }
+
+        /* Keyframes for Fade-in */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
 </head>
-<body class="container my-5">
-    <h2>Audit Logs</h2>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>User</th>
-                <th>Action</th>
-                <th>Timestamp</th>
-                <th>Details</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for log in logs %}
+<body class="dark-blue">
+
+    <!-- Logo Title -->
+    <div class="logo-title">CryptWallet</div>
+
+    <div class="back-button">
+        <a href="{% url 'index' %}" class="btn btn-cyber">&larr; Back</a>
+    </div>
+
+    <div class="container">
+        <h2>Audit Logs</h2>
+        <table class="table table-dark table-striped">
+            <thead>
                 <tr>
-                    <td>{{ log.user.username }}</td>
-                    <td>{{ log.get_action_display }}</td>
-                    <td>{{ log.timestamp }}</td>
-                    <td>{{ log.details }}</td>
+                    <th>#</th>
+                    <th>Action</th>
+                    <th>File Name</th>
+                    <th>Details</th>
+                    <th>Timestamp</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ log.get_action_display }}</td>
+                        <td>{{ log.file_name }}</td>
+                        <td>{{ log.details }}</td>
+                        <td>{{ log.timestamp }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">No logs available.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="{% url 'file_upload' %}" class="btn btn-cyber">Go to File Upload</a>
+    </div>
+
+    <script>
+        // Function to change theme based on selected option
+        function changeTheme() {
+            const theme = document.getElementById("themeSelector").value;
+            document.body.className = theme;
+        }
+    </script>
 </body>
 </html>
