@@ -27,6 +27,8 @@ class AuditLog(models.Model):
         ('UPLOAD', 'Upload'),
         ('DOWNLOAD', 'Download'),
         ('DELETE', 'Delete'),
+        ('LOGIN', 'Login'),
+        ('LOGOUT', 'Logout'),
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="audit_logs")

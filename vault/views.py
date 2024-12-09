@@ -7,7 +7,8 @@ from django.urls import reverse
 from django.conf import settings
 from django.contrib.auth.models import User
 from django import forms
-
+from django.contrib.auth.signals import user_logged_in, user_logged_out
+from django.dispatch import receiver
 from .models import UploadedFile
 from .forms import FileUploadForm, ProfileUpdateForm
 
@@ -203,6 +204,25 @@ def login(request):
     if request.user.is_authenticated:
         return index(request)
     return render(request, 'vault/auth/login.html')
+
+
+
+@receiver(user_logged_in)
+def log_user_login(sender, request, user, **kwargs):
+    AuditLog.objects.create(
+        user=user,
+        action='LOGIN',
+        details=f"User {user.username} logged in."
+    )
+
+@receiver(user_logged_out)
+def log_user_logout(sender, request, user, **kwargs):
+    AuditLog.objects.create(
+        user=user,
+        action='LOGOUT',
+        details=f"User {user.username} logged out."
+    )
+
 
 
 def register(request):
