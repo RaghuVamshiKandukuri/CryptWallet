@@ -1,0 +1,28 @@
+<h2>Manage File Access Requests</h2>
+<table>
+    <thead>
+        <tr>
+            <th>File Name</th>
+            <th>Requester</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for req in requests %}
+        <tr>
+            <td>{{ req.file.file.name }}</td>
+            <td>{{ req.requester.username }}</td>
+            <td>{{ "Approved" if req.approved else "Pending" }}</td>
+            <td>
+                {% if not req.approved %}
+                <form action="{% url 'approve_request' req.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit">Approve</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

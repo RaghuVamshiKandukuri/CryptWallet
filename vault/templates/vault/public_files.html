@@ -1,0 +1,24 @@
+<h2>Public Files</h2>
+<table>
+    <thead>
+        <tr>
+            <th>File Name</th>
+            <th>Owner</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for file in files %}
+        <tr>
+            <td>{{ file.file.name }}</td>
+            <td>{{ file.owner.username }}</td>
+            <td>
+                <form action="{% url 'request_access' file.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit">Request Access</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
