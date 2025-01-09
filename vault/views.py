@@ -375,7 +375,13 @@ def profile(request):
     return render(request, 'vault/profile.html', {'form': form})
 
 
-
+def u(request, username):
+    user = User.objects.get(username=username)
+    print(username, user)
+    return render(request, 'vault/user.html', {
+        'u': user,
+        'files': UploadedFile.objects.filter(user__username=username, visibility="PUBLIC")
+    })
 
 
 

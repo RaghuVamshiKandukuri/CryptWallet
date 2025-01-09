@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,6 +18,7 @@
             height: 100vh;
             margin: 0;
         }
+
         .profile-container {
             max-width: 900px;
             padding: 40px;
@@ -38,6 +40,7 @@
             text-decoration: none;
             transition: color 0.3s ease;
         }
+
         .back-button:hover {
             color: #007B9E;
         }
@@ -52,11 +55,13 @@
         }
 
         /* Field styling */
-        .profile-details, .update-form {
+        .profile-details,
+        .update-form {
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
+
         .form-group {
             display: flex;
             justify-content: space-between;
@@ -65,12 +70,15 @@
             background: #2C2C2C;
             border-radius: 5px;
         }
+
         .form-group label {
             margin: 0;
             color: #A0A0A0;
             flex: 0.3;
         }
-        .form-group p, .form-group input {
+
+        .form-group p,
+        .form-group input {
             flex: 0.7;
             color: #00E6FF;
             font-weight: bold;
@@ -80,6 +88,7 @@
             border: none;
             text-align: left;
         }
+
         .form-group input {
             color: white;
             background: #1F1F1F;
@@ -87,7 +96,7 @@
             padding: 5px;
             border-radius: 5px;
         }
-        
+
         /* Update button styling */
         .btn-cyber {
             background-color: #00E6FF;
@@ -95,17 +104,26 @@
             font-weight: bold;
             transition: background-color 0.3s ease;
         }
+
         .btn-cyber:hover {
             background-color: #007B9E;
         }
 
         /* Keyframes for fade-in animation */
         @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
     </style>
 </head>
+
 <body>
     <!-- Back button linking to Django admin page -->
     <a href="{% url 'index' %}" class="back-button">&larr; Back</a>
@@ -113,7 +131,7 @@
     <div class="profile-container">
         <!-- Profile title -->
         <h2 class="profile-title">Your Profile</h2>
-        
+
         <div class="row">
             <!-- Current profile details section -->
             <div class="col-md-6 profile-details">
@@ -135,7 +153,7 @@
                     <p>{{ request.user.last_name }}</p>
                 </div>
             </div>
-            
+
             <!-- Update form for profile details -->
             <div class="col-md-6 update-form">
                 <form method="POST">
@@ -157,21 +175,22 @@
                         <label for="email">Email</label>
                         {{ form.email }}
                     </div>
-                    
+
                     <div class="text-center mt-4">
                         <button type="submit" class="btn btn-cyber">Update Profile</button>
                     </div>
                 </form>
-                
+
                 {% if messages %}
-                    <div class="mt-3">
-                        {% for message in messages %}
-                            <div class="alert alert-success">{{ message }}</div>
-                        {% endfor %}
-                    </div>
+                <div class="mt-3">
+                    {% for message in messages %}
+                    <div class="alert alert-success">{{ message }}</div>
+                    {% endfor %}
+                </div>
                 {% endif %}
             </div>
         </div>
     </div>
 </body>
+
 </html>

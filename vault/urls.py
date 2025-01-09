@@ -14,7 +14,11 @@ urlpatterns = [
     path("register/", register, name="register"),
     path('logout/', logout_view, name='logout'),
     path('index/',index,name='index'),
+
     path('profile/', profile, name='profile'),
+    path('u/<str:username>/', u, name="u"),
+
+
     path('setting/', setting, name='setting'),
     path('file_upload/', file_upload, name='file_upload'),
     path('delete/<int:file_id>/', delete_file, name='delete_file'),
