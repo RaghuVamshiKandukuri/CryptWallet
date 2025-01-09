@@ -4,11 +4,19 @@ from django.utils.timezone import now
 
 
 class UploadedFile(models.Model):
+    VISIBILITY_CHOICES = [
+        ('PUBLIC', 'Public'),
+        ('PRIVATE', 'Private'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="uploaded_files")  # Associate file with user
     file = models.FileField(upload_to='uploads/')
     uploaded_at = models.DateTimeField(auto_now_add=True)
+    visibility = models.CharField(max_length=10, choices=VISIBILITY_CHOICES, default='PRIVATE')
+    shared_with = models.ManyToManyField(User, related_name="shared_files", blank=True)  # Users the file is shared with
 
     def __str__(self):
-        return self.file.name
+        return f"{self.file.name} (Uploaded by {self.user.username})"
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -39,3 +47,14 @@ class AuditLog(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.action} - {self.file_name} - {self.timestamp}"
+    
+
+
+class Message(models.Model):
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_messages')
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Message from {self.sender} to {self.receiver} at {self.timestamp}"

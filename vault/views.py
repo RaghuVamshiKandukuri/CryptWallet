@@ -1,6 +1,6 @@
 from fileinput import filename
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login as django_login
 from django.urls import reverse
@@ -92,6 +92,7 @@ def decrypt_file(encrypted_file_path: str, password: str) -> bytes:
 
 
 
+@login_required
 def file_upload(request):
     if request.method == 'POST':
         form = FileUploadForm(request.POST, request.FILES)
@@ -101,15 +102,15 @@ def file_upload(request):
             original_file_name = uploaded_file.name
             encrypted_file_path = os.path.join(settings.MEDIA_ROOT, 'uploads', original_file_name + '.enc')
 
-            # Ensure the directory exists
             os.makedirs(os.path.dirname(encrypted_file_path), exist_ok=True)
 
-            # Encrypt the file
             with uploaded_file.open('rb') as infile, open(encrypted_file_path, 'wb') as outfile:
                 encrypt_file(infile, outfile, password)
 
-            # Save file metadata
-            UploadedFile.objects.create(file='uploads/' + original_file_name + '.enc')
+            UploadedFile.objects.create(
+                user=request.user,
+                file='uploads/' + original_file_name + '.enc'
+            )
 
             AuditLog.objects.create(
                 user=request.user,
@@ -118,14 +119,89 @@ def file_upload(request):
                 details="File uploaded and encrypted."
             )
 
-
             messages.success(request, "File uploaded and encrypted successfully.")
             return redirect('file_upload')
     else:
         form = FileUploadForm()
 
-    files = UploadedFile.objects.all()
+    files = UploadedFile.objects.filter(user=request.user)
     return render(request, 'vault/file_upload.html', {'form': form, 'files': files})
+
+
+
+VALID_VISIBILITY_OPTIONS = {"public", "private"}
+
+@login_required
+def toggle_file_visibility(request, file_id):
+    file_obj = get_object_or_404(UploadedFile, id=file_id)
+
+    # Check user permissions
+    if file_obj.user != request.user:
+        return HttpResponseForbidden("You do not have permission to update this file.")
+
+    if request.method == "POST":
+        visibility = request.POST.get("visibility").upper()
+
+        # Validate visibility parameter
+        if visibility.lower() not in VALID_VISIBILITY_OPTIONS:
+            messages.error(request, "Invalid visibility option.")
+            return redirect('file_upload')
+
+        # Update file visibility
+        file_obj.visibility = visibility.strip()
+        file_obj.save()
+
+        # Log the update
+        AuditLog.objects.create(
+            user=request.user,
+            action="UPDATE",
+            file_name=file_obj.file.name,
+            details=f"Visibility set to {visibility}."
+        )
+
+        messages.success(request, f"File is now {visibility}.")
+
+    return redirect('file_upload')
+
+
+@login_required
+def share_files(request, file_id):
+    file_obj = get_object_or_404(UploadedFile, id=file_id)
+
+    if file_obj.user != request.user:
+        return HttpResponseForbidden("You do not have permission to share this file.")
+
+    if request.method == "POST":
+        recipient_username = request.POST.get('recipient_username')
+        recipient = User.objects.filter(username=recipient_username).first()
+
+        if not recipient:
+            messages.error(request, "User not found.")
+            return redirect('file_upload')
+
+        file_obj.shared_with.add(recipient)
+        messages.success(request, f"File shared with {recipient.username}.")
+
+        AuditLog.objects.create(
+            user=request.user,
+            action="SHARE",
+            file_name=file_obj.file.name,
+            details=f"File shared with {recipient.username}."
+        )
+
+    return redirect('file_upload')
+
+
+
+
+@login_required
+def view_shared_files(request):
+    files = UploadedFile.objects.filter(shared_with=request.user)
+    return render(request, 'vault/shared_files.html', {'files': files})
+
+
+
+
 
 # File download view
 def download_file(request, file_id):
@@ -157,13 +233,18 @@ def download_file(request, file_id):
 
 
 
+@login_required
 def delete_file(request, file_id):
     file_obj = get_object_or_404(UploadedFile, id=file_id)
+
+    # Ensure the file belongs to the logged-in user
+    if file_obj.user != request.user:
+        return HttpResponseForbidden("You do not have permission to delete this file.")
+
     original_file_name = os.path.basename(file_obj.file.name).replace('.enc', '')
     if request.method == "POST":
-        file = get_object_or_404(UploadedFile, id=file_id)  # Change 'UploadedFile' to your model name
-        file.file.delete()  # Deletes the file from storage
-        file.delete()  # Deletes the database record
+        file_obj.file.delete()  # Deletes the file from storage
+        file_obj.delete()  # Deletes the database record
 
         AuditLog.objects.create(
             user=request.user,
@@ -171,10 +252,9 @@ def delete_file(request, file_id):
             file_name=original_file_name,
             details="File deleted from storage."
         )
-        
+
         messages.success(request, "File deleted successfully.")
     return redirect('file_upload')  # Redirect to the file upload page
-
 
 
 
@@ -308,3 +388,57 @@ def audit_logs(request):
 
 
 
+
+
+from .models import Message
+
+@login_required
+def message_list(request):
+    messages = Message.objects.filter(receiver=request.user).order_by('-timestamp')
+    return render(request, 'vault/message_list.html', {'messages': messages})
+
+
+@login_required
+def send_message(request, user_id=None):
+    if request.method == 'POST':
+        recipient_id = request.POST.get('recipient')
+        content = request.POST.get('content')
+        if not content:
+            messages.error(request, "Message content cannot be empty.")
+            return redirect('send_message')
+
+        recipient = get_object_or_404(User, id=recipient_id)
+        Message.objects.create(
+            sender=request.user,
+            receiver=recipient,
+            content=content
+        )
+        messages.success(request, f"Message sent to {recipient.username}.")
+        return redirect('search_user')
+
+    users = User.objects.exclude(id=request.user.id)  # Exclude the logged-in user
+    return render(request, 'vault/send_message.html', {'users': users})
+
+
+
+from django.shortcuts import render
+from django.http import JsonResponse
+from django.contrib.auth.models import User  # Use your User model here
+
+def search_user(request):
+    query = request.GET.get('q', '').strip()  # Get and sanitize the search query
+    user = None
+
+    if query:  # If there's a query, try to find the user
+        user = User.objects.filter(username__iexact=query).first()  # Case-insensitive match, returns None if not found
+
+    return render(request, 'vault/search_user.html', {'query': query, 'user': user})
+
+def search_suggestions(request):
+    query = request.GET.get('q', '').strip()  # Sanitize the input
+    if len(query) < 2:  # Validate query length
+        return JsonResponse([], safe=False)
+    
+    users = User.objects.filter(username__icontains=query)[:10]  # Limit to 10 results
+    results = [{'id': user.id, 'username': user.username} for user in users]  # Prepare JSON response
+    return JsonResponse(results, safe=False)

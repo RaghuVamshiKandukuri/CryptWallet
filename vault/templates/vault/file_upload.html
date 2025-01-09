@@ -6,24 +6,15 @@
     <title>File Upload - CryptWallet</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        /* General body and container styles matching index.html */
         body {
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #141E30, #243B55); /* Dark Blue Theme */
+            background: linear-gradient(135deg, #141E30, #243B55);
             color: #00E6FF;
             margin: 0;
             padding: 0;
             transition: background 0.3s ease;
         }
 
-        .delete-btn {
-            background: transparent;
-            border: none;
-            color: #FF6B6B;
-            font-size: 0.9em;
-            cursor: pointer;
-        }
-        
         .container {
             max-width: 1000px;
             margin: 50px auto;
@@ -34,8 +25,6 @@
             border: 1px solid #00E6FF;
             box-shadow: 0 0 10px rgba(0, 230, 255, 0.3);
         }
-
-        
 
         .btn-cyber {
             border-radius: 8px;
@@ -58,13 +47,6 @@
             margin-bottom: 30px;
         }
 
-        /* Back button styling */
-        .back-button {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-        }
-
         .list-group-item {
             background: #1F1F1F;
             color: #00E6FF;
@@ -74,7 +56,46 @@
             align-items: center;
         }
 
-        /* Small Delete Button */
+        .toggle-switch {
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .toggle-checkbox {
+            display: none;
+        }
+
+        .toggle-label {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 25px;
+            background: #00ccff;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .toggle-label:before {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            top: 2.5px;
+            left: 2.5px;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-checkbox:checked + .toggle-label {
+            background: #FF6B6B;
+        }
+
+        .toggle-checkbox:checked + .toggle-label:before {
+            transform: translateX(25px);
+        }
+
         .delete-btn {
             background: transparent;
             border: none;
@@ -82,29 +103,32 @@
             font-size: 0.9em;
             cursor: pointer;
         }
-        
-        /* Card animation for fade-in */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
         }
 
-        /* Apply animation */
-        .container {
-            animation: fadeIn 2s ease-in-out;
+        .share-btn {
+            margin-left: 10px;
+        }
+
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
     </style>
 </head>
 <body>
-    <!-- Back Button -->
     <div class="back-button">
         <a href="{% url 'index' %}" class="btn btn-cyber">&larr; Back</a>
     </div>
 
     <div class="container">
         <h2>Upload File</h2>
-        
-        <!-- Upload Form -->
+
         <form method="post" enctype="multipart/form-data" class="mb-4">
             {% csrf_token %}
             <div class="form-group">
@@ -114,19 +138,31 @@
             <button type="submit" class="btn btn-cyber mt-3">Upload</button>
         </form>
 
-        <!-- Uploaded Files Section -->
         <h3>Uploaded Files</h3>
         <ul class="list-group">
             {% for file in files %}
                 <li class="list-group-item">
                     <a href="{{ file.file.url }}" target="_blank" style="color: #00E6FF;">{{ file.file.name }}</a>
-                    <div>
+                    <div class="actions">
+                        <!-- Toggle Visibility Buttons -->
+                        <form method="post" action="{% url 'toggle_visibility' file.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            {% if file.visibility ==  'PRIVATE'%}
+                            
+                                <button type="submit" name="visibility" value="public" class="btn btn-cyber">Make Public</button>
+                            {% else %}
+                                <button type="submit" name="visibility" value="private" class="btn btn-cyber">Make Private</button>
+                            {% endif %}
+                        </form>
+        
+                        <a href="{% url 'share_files' file.id %}" class="btn btn-cyber share-btn">Get Link</a>
+        
                         <!-- Delete Button -->
                         <form method="post" action="{% url 'delete_file' file.id %}" style="display: inline;">
                             {% csrf_token %}
                             <button type="submit" class="delete-btn">Delete</button>
                         </form>
-
+        
                         <!-- Download Button -->
                         <form method="get" action="{% url 'download_file' file.id %}" style="display: inline;">
                             <button type="submit" class="btn btn-cyber">Download</button>
@@ -137,9 +173,6 @@
                 <li class="list-group-item">No files uploaded yet.</li>
             {% endfor %}
         </ul>
-
-        <a href="{% url 'audit_logs' %}" class="btn btn-cyber">Go to Audit Log</a>
-        
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>

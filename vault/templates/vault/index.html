@@ -181,12 +181,7 @@
                     <a href="{% url 'file_upload' %}" class="btn btn-cyber">Go to Upload Page</a>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <h5 class="card-title">Messages</h5>
-                    <p class="card-text">Check your recent messages and notifications.</p>
-                </div>
-            </div>
+            
             <!-- New Card for Audit Logs -->
             <div class="col-md-4">
                 <div class="card">
@@ -196,6 +191,34 @@
                     <a href="{% url 'audit_logs' %}" class="btn btn-cyber">Go to Audit Logs</a>
                 </div>
             </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <h5 class="card-title">Search User</h5>
+                    <p class="card-text">Search for users to send messages or connect.</p>
+                    <!-- Search Users Button -->
+                    <a href="{% url 'search_user' %}" class="btn btn-cyber">Search for Users</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <h5 class="card-title">Messages</h5>
+                    <p class="card-text">Send messages to your Friends.</p>
+                    <!-- Send Message Button -->
+                    <a href="{% url 'send_message' request.user.id %}" class="btn btn-cyber">Send a Message</a>
+                </div>
+            </div>
+
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <h5 class="card-title">Messages</h5>
+                    <p class="card-text">Check your recent messages and notifications.</p>
+                    <!-- View Inbox Button -->
+                    <a href="{% url 'message_list' %}" class="btn btn-cyber mt-2">View Inbox</a>
+                </div>
+            </div>
+            
+            
         </div>
     </div>
 

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Message</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Send Message</h1>
+        <form method="post" action="{% url 'send_message' recipient.id %}">
+            {% csrf_token %}
+            <label for="recipient">Send To:</label>
+            <select name="recipient" id="recipient" required>
+                {% for user in users %}
+                    <option value="{{ user.id }}">{{ user.username }}</option>
+                {% endfor %}
+            </select>
+            <label for="content">Message:</label>
+            <textarea name="content" id="content" required></textarea>
+            <button type="submit" class="btn btn-primary mt-3">Send Message</button>
+        </form>
+    </div>
+</body>
+</html>

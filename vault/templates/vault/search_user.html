@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search User</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #141E30, #243B55);
+            color: #00E6FF;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 30px;
+            background: #1F1F1F;
+            color: #00E6FF;
+            border-radius: 10px;
+            border: 1px solid #00E6FF;
+            box-shadow: 0 0 10px rgba(0, 230, 255, 0.3);
+        }
+
+        .btn-cyber {
+            border-radius: 8px;
+            font-weight: bold;
+            padding: 10px 15px;
+            transition: all 0.2s;
+            background: #00E6FF;
+            color: #1F1F1F;
+            border: none;
+        }
+
+        .btn-cyber:hover {
+            background: #00ccff;
+            color: #fff;
+        }
+
+        .list-group-item {
+            background: #1F1F1F;
+            color: #00E6FF;
+            border: 1px solid #00E6FF;
+        }
+
+        .dropdown-menu {
+            background: #1F1F1F;
+            color: #00E6FF;
+            border: 1px solid #00E6FF;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .dropdown-item {
+            color: #00E6FF;
+        }
+
+        .dropdown-item:hover {
+            background: #00ccff;
+            color: #1F1F1F;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Search for a User</h1>
+        <form method="GET" action="{% url 'search_user' %}" class="form-inline mb-4">
+            <div class="dropdown w-100">
+                <input 
+                    type="text" 
+                    name="q" 
+                    id="searchInput" 
+                    class="form-control w-100" 
+                    placeholder="Enter username" 
+                    value="{{ query|default:'' }}" 
+                    autocomplete="off"
+                >
+                <div class="dropdown-menu w-100" id="suggestions"></div>
+            </div>
+            <button type="submit" class="btn btn-cyber mt-2 w-100">Search</button>
+        </form>
+
+        {% if query %}
+            <h4>Search Results for "{{ query }}":</h4>
+            {% if user %}
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ user.username }}
+                        <a href="{% url 'send_message' user.id %}" class="btn btn-sm btn-info">Send Message</a>
+                    </li>
+                </ul>
+            {% else %}
+                <p>No user found with that username.</p>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <script>
+        document.getElementById('searchInput').addEventListener('input', function () {
+            const query = this.value.trim();
+            const loggedInUserId = "{{ request.user.id }}"; // Pass the logged-in user ID
+
+            if (query.length < 2) {
+                document.getElementById('suggestions').style.display = 'none';
+                return;
+            }
+
+            fetch(`/search_suggestions?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    const suggestions = document.getElementById('suggestions');
+                    suggestions.innerHTML = '';
+
+                    if (data.length > 0) {
+                        data.forEach(user => {
+                            // Exclude the logged-in user
+                            if (user.id !== parseInt(loggedInUserId)) {
+                                const item = document.createElement('a');
+                                item.className = 'dropdown-item';
+                                item.textContent = user.username;
+                                item.href = `?q=${user.username}`;
+                                suggestions.appendChild(item);
+                            }
+                        });
+
+                        suggestions.style.display = 'block';
+                    } else {
+                        const noResult = document.createElement('div');
+                        noResult.className = 'dropdown-item text-muted';
+                        noResult.textContent = 'No results found';
+                        suggestions.appendChild(noResult);
+                        suggestions.style.display = 'block';
+                    }
+                })
+                .catch(error => console.error('Error fetching suggestions:', error));
+        });
+    </script>
+</body>
+</html>

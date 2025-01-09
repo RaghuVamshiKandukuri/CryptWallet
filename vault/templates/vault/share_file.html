@@ -1,7 +1,0 @@
-<h3>Share File: {{ file.file_name }}</h3>
-<form method="post">
-    {% csrf_token %}
-    <label for="username">Enter username to share with:</label>
-    <input type="text" name="username" id="username">
-    <button type="submit">Share</button>
-</form>

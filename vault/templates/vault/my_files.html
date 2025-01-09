@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Files</title>
+</head>
+<body>
+    <h1>My Files</h1>
+    <table border="1">
+        <tr>
+            <th>File</th>
+            <th>Visibility</th>
+            <th>Actions</th>
+        </tr>
+        {% for file in files %}
+        <tr>
+            <td>{{ file.file.name }}</td>
+            <td>
+                {% if file.is_public %}
+                    Public
+                {% else %}
+                    Private
+                {% endif %}
+            </td>
+            <td>
+                <form method="post" action="{% url 'my_files' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="file_id" value="{{ file.id }}">
+                    <label>
+                        <input type="checkbox" name="is_public" {% if file.is_public %}checked{% endif %}>
+                        Public
+                    </label>
+                    <button type="submit">Update</button>
+                </form>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="3">No files found.</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
