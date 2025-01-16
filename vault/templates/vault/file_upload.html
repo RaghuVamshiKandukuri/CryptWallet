@@ -1,3 +1,4 @@
+<!-- file_upload.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,7 +13,6 @@
             color: #00E6FF;
             margin: 0;
             padding: 0;
-            transition: background 0.3s ease;
         }
 
         .container {
@@ -56,52 +56,10 @@
             align-items: center;
         }
 
-        .toggle-switch {
-            display: inline-flex;
+        .actions {
+            display: flex;
             align-items: center;
-        }
-
-        .toggle-checkbox {
-            display: none;
-        }
-
-        .toggle-label {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 25px;
-            background: #00ccff;
-            border-radius: 15px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-
-        .toggle-label:before {
-            content: "";
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background: #fff;
-            border-radius: 50%;
-            top: 2.5px;
-            left: 2.5px;
-            transition: transform 0.3s ease;
-        }
-
-        .toggle-checkbox:checked + .toggle-label {
-            background: #FF6B6B;
-        }
-
-        .toggle-checkbox:checked + .toggle-label:before {
-            transform: translateX(25px);
-        }
-
-        .delete-btn {
-            background: transparent;
-            border: none;
-            color: #FF6B6B;
-            font-size: 0.9em;
-            cursor: pointer;
+            gap: 10px;
         }
 
         .back-button {
@@ -114,12 +72,34 @@
             margin-left: 10px;
         }
 
-        .actions {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .share-input-container {
+            position: relative;
+        }
+
+        .suggestions-container {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #1F1F1F;
+            color: #00E6FF;
+            z-index: 10;
+            border: 1px solid #00E6FF;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .suggestion-item {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .suggestion-item:hover {
+            background: #00ccff;
+            color: #1F1F1F;
         }
     </style>
+    <meta name="csrf-token" content="{{ csrf_token }}">
 </head>
 <body>
     <div class="back-button">
@@ -142,31 +122,41 @@
         <ul class="list-group">
             {% for file in files %}
                 <li class="list-group-item">
-                    <a href="{{ file.file.url }}" target="_blank" style="color: #00E6FF;">{{ file.file.name }}</a>
+                    <a href="{{ file.file.url }}" target="_blank">{{ file.file.name|default:"Unnamed File" }}</a>
                     <div class="actions">
-                        <!-- Toggle Visibility Buttons -->
                         <form method="post" action="{% url 'toggle_visibility' file.id %}" style="display: inline;">
                             {% csrf_token %}
-                            {% if file.visibility ==  'PRIVATE'%}
-                            
+                            {% if file.visibility == 'PRIVATE' %}
                                 <button type="submit" name="visibility" value="public" class="btn btn-cyber">Make Public</button>
                             {% else %}
                                 <button type="submit" name="visibility" value="private" class="btn btn-cyber">Make Private</button>
                             {% endif %}
                         </form>
-        
-                        <a href="{% url 'share_files' file.id %}" class="btn btn-cyber share-btn">Get Link</a>
-        
-                        <!-- Delete Button -->
+
                         <form method="post" action="{% url 'delete_file' file.id %}" style="display: inline;">
                             {% csrf_token %}
-                            <button type="submit" class="delete-btn">Delete</button>
+                            <button type="submit" class="btn btn-cyber">Delete</button>
                         </form>
-        
-                        <!-- Download Button -->
                         <form method="get" action="{% url 'download_file' file.id %}" style="display: inline;">
                             <button type="submit" class="btn btn-cyber">Download</button>
                         </form>
+
+                        <button type="button" class="btn btn-cyber share-btn" onclick="toggleShareForm('{{ file.id }}')">Share File</button>
+
+                        <form method="post" action="{% url 'share_file' file.id %}" 
+                              id="share-form-{{ file.id }}" 
+                              style="display: none; margin-top: 10px;" 
+                              class="share-input-container">
+                            {% csrf_token %}
+                            <input type="text" name="username" id="searchInput-{{ file.id }}" 
+                                   class="form-control" 
+                                   placeholder="Enter username" 
+                                   autocomplete="off" 
+                                   oninput="searchUsers('{{ file.id }}')" required>
+                            <div class="suggestions-container" id="suggestions-{{ file.id }}" style="display: none;"></div>
+                            <button type="submit" class="btn btn-cyber mt-2">Send</button>
+                        </form>
+                        
                     </div>
                 </li>
             {% empty %}
@@ -175,7 +165,60 @@
         </ul>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+  
+    
+    <script>
+        function toggleShareForm(fileId) {
+            const form = document.getElementById(`share-form-${fileId}`);
+            form.style.display = form.style.display === "block" ? "none" : "block";
+        }
+
+        
+
+        async function searchUsers(fileId) {
+            const input = document.getElementById(`searchInput-${fileId}`);
+            const query = input.value.trim();
+            const suggestions = document.getElementById(`suggestions-${fileId}`);
+
+            if (query.length < 2) {
+                suggestions.style.display = "none";
+                suggestions.innerHTML = "";
+                return;
+            }
+
+            try {
+                const response = await fetch(`/search_suggestions?q=${encodeURIComponent(query)}`, {
+                    method: 'GET',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                });
+
+                const data = await response.json();
+                suggestions.innerHTML = "";
+
+                if (data.length > 0) {
+                    data.forEach(user => {
+                        const item = document.createElement("div");
+                        item.className = "suggestion-item";
+                        item.textContent = user.username;
+                        item.onclick = () => {
+                            input.value = user.username;
+                            suggestions.style.display = "none";
+                        };
+                        suggestions.appendChild(item);
+                    });
+                    suggestions.style.display = "block";
+                } else {
+                    suggestions.innerHTML = "<div class='suggestion-item text-muted'>No results found</div>";
+                    suggestions.style.display = "block";
+                }
+            } catch (error) {
+                console.error("Error fetching suggestions:", error);
+                suggestions.innerHTML = "<div class='suggestion-item text-danger'>Error fetching results</div>";
+                suggestions.style.display = "block";
+            }
+        }
+    </script>
 </body>
 </html>

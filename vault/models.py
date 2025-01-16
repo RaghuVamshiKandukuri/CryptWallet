@@ -58,3 +58,26 @@ class Message(models.Model):
 
     def __str__(self):
         return f"Message from {self.sender} to {self.receiver} at {self.timestamp}"
+
+
+
+
+
+
+class SharedFile(models.Model):
+    shared_by = models.ForeignKey(User, related_name='files_shared_by', on_delete=models.CASCADE)
+    shared_with = models.ForeignKey(User, related_name='files_shared_with', on_delete=models.CASCADE)
+    file = models.ForeignKey(UploadedFile, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        # Truncate file name for better readability in the admin interface
+        return f"{self.file.file.name[:20]} shared by {self.shared_by.username} with {self.shared_with.username}"
+
+    class Meta:
+        verbose_name = "Shared File"
+        verbose_name_plural = "Shared Files"
+        # Prevent duplicate sharing of the same file with the same user
+        constraints = [
+            models.UniqueConstraint(fields=['shared_with', 'file'], name='unique_file_share')
+        ]

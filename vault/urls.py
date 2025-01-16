@@ -30,8 +30,15 @@ urlpatterns = [
     path('search_suggestions', search_suggestions, name='search_suggestions'),
     path('files/upload/', file_upload, name='file_upload'),
     path('files/<int:file_id>/toggle-visibility/', toggle_file_visibility, name='toggle_visibility'),
-    path('files/<int:file_id>/share/', share_files, name='share_files'),
-    path('share_files/', share_files, name='share_files'),
+    path('files/<int:file_id>/share/', share_file, name='share_files'),
+    path('share_files/', share_file, name='share_files'),
+    path('shared-files/',shared_files, name='shared_files'),
+    path('files/<int:file_id>/share/', share_file, name='share_file'),
+    path('shared-files/', shared_files, name='shared_files'),
+
+    path('share_file/<int:file_id>/', share_file, name='share_file'),
+    
+
     
 
 ] 

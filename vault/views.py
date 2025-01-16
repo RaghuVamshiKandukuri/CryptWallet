@@ -11,26 +11,21 @@ from django.contrib.auth.signals import user_logged_in, user_logged_out
 from django.dispatch import receiver
 from .models import UploadedFile
 from .forms import FileUploadForm, ProfileUpdateForm
-
 from django.contrib import messages
 import os
 from django.contrib.auth import logout
-
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
-
-
 from .forms import FileUploadForm
-
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives.hashes import SHA256
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 import secrets
 import os
-
-
 from .models import AuditLog
+
+
 
 # Generate a secure encryption key using a password and salt
 def generate_key(password: str, salt: bytes) -> bytes:
@@ -165,29 +160,25 @@ def toggle_file_visibility(request, file_id):
 
 
 @login_required
-def share_files(request, file_id):
+def share_file(request, file_id):
     file_obj = get_object_or_404(UploadedFile, id=file_id)
 
     if file_obj.user != request.user:
-        return HttpResponseForbidden("You do not have permission to share this file.")
+        return HttpResponseForbidden("You can only share your own files.")
 
     if request.method == "POST":
-        recipient_username = request.POST.get('recipient_username')
-        recipient = User.objects.filter(username=recipient_username).first()
+        username = request.POST.get("username")
+        recipient = User.objects.filter(username=username).first()
 
-        if not recipient:
+        if recipient:
+            # Prevent duplicate sharing
+            if not SharedFile.objects.filter(shared_by=request.user, shared_with=recipient, file=file_obj).exists():
+                SharedFile.objects.create(shared_by=request.user, shared_with=recipient, file=file_obj)
+                messages.success(request, f"File successfully shared with {recipient.username}.")
+            else:
+                messages.warning(request, f"You have already shared this file with {recipient.username}.")
+        else:
             messages.error(request, "User not found.")
-            return redirect('file_upload')
-
-        file_obj.shared_with.add(recipient)
-        messages.success(request, f"File shared with {recipient.username}.")
-
-        AuditLog.objects.create(
-            user=request.user,
-            action="SHARE",
-            file_name=file_obj.file.name,
-            details=f"File shared with {recipient.username}."
-        )
 
     return redirect('file_upload')
 
@@ -440,11 +431,53 @@ def search_user(request):
 
     return render(request, 'vault/search_user.html', {'query': query, 'user': user})
 
+@login_required
 def search_suggestions(request):
-    query = request.GET.get('q', '').strip()  # Sanitize the input
-    if len(query) < 2:  # Validate query length
-        return JsonResponse([], safe=False)
-    
-    users = User.objects.filter(username__icontains=query)[:10]  # Limit to 10 results
-    results = [{'id': user.id, 'username': user.username} for user in users]  # Prepare JSON response
-    return JsonResponse(results, safe=False)
+    """View to handle user search suggestions."""
+    if request.method == "GET":
+        query = request.GET.get("q", "").strip()
+
+        # Return empty list for short queries
+        if len(query) < 2:
+            return JsonResponse([], safe=False)
+
+        # Search for users excluding the current user
+        users = User.objects.filter(username__icontains=query).exclude(id=request.user.id)
+        suggestions = [{"username": user.username} for user in users]
+
+        return JsonResponse(suggestions, safe=False)
+
+    return JsonResponse([], safe=False)
+
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden
+from django.contrib import messages
+from .models import UploadedFile, SharedFile
+from django.contrib.auth.models import User
+
+from django.shortcuts import get_object_or_404
+from django.contrib.auth.models import User
+from django.http import HttpResponse
+
+@login_required
+def share_file(request, file_id):
+    file = get_object_or_404(UploadedFile, id=file_id, user=request.user)
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        recipient = get_object_or_404(User, username=username)
+        SharedFile.objects.create(file=file, shared_by=request.user, shared_with=recipient)
+        return HttpResponse(f"File shared with {recipient.username}")
+    return HttpResponse("Invalid request.")
+
+
+
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from .models import SharedFile
+
+@login_required
+def shared_files(request):
+    shared_files = SharedFile.objects.filter(shared_with=request.user).select_related('file', 'shared_by')
+    return render(request, 'vault/shared_files.html', {'shared_files': shared_files})
