@@ -90,6 +90,7 @@ def decrypt_file(encrypted_file_path: str, password: str) -> bytes:
 @login_required
 def file_upload(request):
     if request.method == 'POST':
+        print(request.POST)
         form = FileUploadForm(request.POST, request.FILES)
         if form.is_valid():
             uploaded_file = request.FILES['file']
@@ -118,8 +119,10 @@ def file_upload(request):
             return redirect('file_upload')
     else:
         form = FileUploadForm()
+        print(form.file)
 
     files = UploadedFile.objects.filter(user=request.user)
+    print(form.file)
     return render(request, 'vault/file_upload.html', {'form': form, 'files': files})
 
 

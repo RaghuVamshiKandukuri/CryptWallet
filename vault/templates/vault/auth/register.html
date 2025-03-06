@@ -4,105 +4,88 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - CryptWallet</title>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* Common Styles */
         body {
+            background-color: #0d0d0d;
+            color: #f8f9fa;
+            font-family: 'Orbitron', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
-            font-family: 'Arial', sans-serif;
+            overflow: hidden;
         }
-
-        /* Theme 1 Styles */
-        .theme1 {
-            background: linear-gradient(135deg, #141E30, #243B55);
-            color: #00E6FF;
+        .home-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #b583ff;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 1.2rem;
         }
-        .theme1 .register-container {
-            max-width: 500px;
-            padding: 30px;
-            background: #1F1F1F;
-            box-shadow: 0 0 15px rgba(0, 230, 255, 0.3);
-            border-radius: 10px;
-            animation: fadeIn 1.5s ease-in-out;
+        .home-link:hover {
+            color: #6c5ce7;
         }
-        .theme1 .register-title {
-            font-size: 2.5rem;
-            color: #00E6FF;
+        .register-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+            background: #ffffff14;
+            box-shadow: 0 4px 20px rgb(255, 255, 255);
+            border-radius: 15px;
+        }
+        .register-title {
+            font-size: 2rem;
+            color: #b583ff;
             text-align: center;
             margin-bottom: 1.5rem;
-            text-shadow: 0 0 10px #00E6FF, 0 0 20px #00E6FF;
         }
-        .theme1 .form-control {
-            background-color: #121212;
-            border: 2px solid #00E6FF;
-            color: #00E6FF;
-        }
-        .theme1 .btn-register {
-            background-color: #00E6FF;
-            color: #1F1F1F;
-            font-weight: bold;
-        }
-
-        /* Theme 2 Styles */
-        .theme2 {
-            background: #121212;
-            color: white;
-        }
-        .theme2 .register-container {
-            max-width: 450px;
-            padding: 2rem;
-            background: #1f1f1f;
-            box-shadow: 0 4px 20px rgba(0, 255, 255, 0.2);
-        }
-        .theme2 .register-title {
-            font-size: 2rem;
-            color: #4e73df;
-            text-align: center;
-        }
-        .theme2 .btn-register {
-            background-color: #4e73df;
-            color: #ffffff;
-        }
-
-        /* Common Button and Label Styles */
-        .btn-toggle {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: #007B9E;
-            color: #ffffff;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .btn-toggle:hover {
-            background-color: #005f7a;
-        }
-        label, .form-control {
-            transition: all 0.3s ease;
+        .form-control {
+            background-color: #1a1a2e;
+            border: 1px solid #6c5ce7;
+            color: #f8f9fa;
         }
         .form-control:focus {
-            box-shadow: none;
+            background-color: #1a1a2e;
+            border-color: #b583ff;
+            box-shadow: 0 0 0 0.25rem rgba(245, 245, 245, 0.25);
         }
-
-        /* Fade-in animation */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+        label {
+            font-size: 1.1rem;
+            color: #f8f9fa;
+        }
+        .btn-register {
+            background-color: #6c5ce7;
+            color: #ffffff;
+            font-size: 1.1rem;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+        }
+        .btn-register:hover {
+            background-color: #b583ff;
+            color: #0d0d0d;
+        }
+        .text-primary {
+            color: #6c5ce7 !important;
+        }
+        .text-primary:hover {
+            color: #b583ff !important;
+        }
+        .error-message {
+            color: #ff6b6b;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            text-align: center;
         }
     </style>
 </head>
-<body class="theme1">
-    <!-- Toggle Theme Button -->
-    <button class="btn-toggle" onclick="toggleTheme()">Toggle Theme</button>
-
+<body>
+    <a href="{% url 'main' %}" class="home-link">Home</a>
     <div class="register-container">
-        <!-- Register title -->
         <h2 class="register-title">Create Your Account</h2>
         
         {% if error_message %}
@@ -112,31 +95,31 @@
         <!-- Registration form -->
         <form method="post" action="{% url 'register' %}">
             {% csrf_token %}
-            <div class="form-group">
+            <div class="mb-3">
                 <label for="first_name">First Name</label>
                 <input type="text" name="first_name" id="first_name" class="form-control" placeholder="Enter first name" required>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <label for="last_name">Last Name</label>
                 <input type="text" name="last_name" id="last_name" class="form-control" placeholder="Enter last name" required>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <label for="username">Username</label>
                 <input type="text" name="username" id="username" class="form-control" placeholder="Enter username" required>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <label for="email">Email</label>
                 <input type="email" name="email" id="email" class="form-control" placeholder="Enter email" required>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <label for="password">Password</label>
                 <input type="password" name="password" id="password" class="form-control" placeholder="Enter password" required>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <label for="confirm_password">Confirm Password</label>
                 <input type="password" name="confirm_password" id="confirm_password" class="form-control" placeholder="Confirm password" required>
             </div>
-            <button type="submit" class="btn btn-register btn-block">Register</button>
+            <button type="submit" class="btn btn-register w-100">Register</button>
         </form>
 
         <!-- Login link -->
@@ -144,12 +127,5 @@
             Already have an account? <a href="{% url 'login' %}" class="text-primary">Login here</a>
         </p>
     </div>
-
-    <script>
-        function toggleTheme() {
-            document.body.classList.toggle('theme1');
-            document.body.classList.toggle('theme2');
-        }
-    </script>
 </body>
 </html>

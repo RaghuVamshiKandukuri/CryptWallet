@@ -143,20 +143,20 @@
 
                         <button type="button" class="btn btn-cyber share-btn" onclick="toggleShareForm('{{ file.id }}')">Share File</button>
 
-                        <form method="post" action="{% url 'share_file' file.id %}" 
-                              id="share-form-{{ file.id }}" 
-                              style="display: none; margin-top: 10px;" 
+                        <form method="post" action="{% url 'share_file' file.id %}"
+                              id="share-form-{{ file.id }}"
+                              style="display: none; margin-top: 10px;"
                               class="share-input-container">
                             {% csrf_token %}
-                            <input type="text" name="username" id="searchInput-{{ file.id }}" 
-                                   class="form-control" 
-                                   placeholder="Enter username" 
-                                   autocomplete="off" 
+                            <input type="text" name="username" id="searchInput-{{ file.id }}"
+                                   class="form-control"
+                                   placeholder="Enter username"
+                                   autocomplete="off"
                                    oninput="searchUsers('{{ file.id }}')" required>
                             <div class="suggestions-container" id="suggestions-{{ file.id }}" style="display: none;"></div>
                             <button type="submit" class="btn btn-cyber mt-2">Send</button>
                         </form>
-                        
+
                     </div>
                 </li>
             {% empty %}
@@ -165,15 +165,16 @@
         </ul>
     </div>
 
-  
-    
+
+
     <script>
         function toggleShareForm(fileId) {
             const form = document.getElementById(`share-form-${fileId}`);
             form.style.display = form.style.display === "block" ? "none" : "block";
         }
 
-        
+
+
 
         async function searchUsers(fileId) {
             const input = document.getElementById(`searchInput-${fileId}`);
