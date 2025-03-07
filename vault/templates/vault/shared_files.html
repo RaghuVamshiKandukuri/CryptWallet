@@ -91,7 +91,9 @@
                                 <td><a href="{{ shared_file.file.file.url }}" target="_blank">{{ shared_file.file.file.name|default:"Unnamed File" }}</a></td>
                                 <td>{{ shared_file.shared_by.username }}</td>
                                 <td>{{ shared_file.timestamp|date:"Y-m-d H:i" }}</td>
-                                <td><a href="{{ shared_file.file.file.url }}" class="btn btn-cyber" download><i class="fas fa-download"></i> Download</a></td>
+                                <td><a href="{% url 'download_file' shared_file.file.id %}" class="btn btn-sm btn-primary">
+    <i class="fas fa-download"></i> Download
+</a></td>
                             </tr>
                         {% endfor %}
                     </tbody>
