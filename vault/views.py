@@ -461,16 +461,17 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 
+
 @login_required
 def share_file(request, file_id):
     file = get_object_or_404(UploadedFile, id=file_id, user=request.user)
     if request.method == 'POST':
         username = request.POST.get('username')
-        print("Username received:", username)  # Debugging
         recipient = get_object_or_404(User, username=username)
         SharedFile.objects.create(file=file, shared_by=request.user, shared_with=recipient)
-        return HttpResponse(f"File shared with {recipient.username}")
-    return HttpResponse("Invalid request.")
+
+
+    return redirect('file_upload')  # Redirects back to the same page to clear form and messages
 
 
 

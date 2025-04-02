@@ -67,7 +67,7 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="btn btn-cyber" class="fas fa-arrow-left" href="{% url 'index' %}">Back</a></li>
+                    <li class="nav-item"><a class="btn btn-cyber" class="fas fa-arrow-left" href="{% url 'file_upload' %}">Go to Upload Files </a></li>
                 </ul>
             </div>
         </div>
@@ -103,7 +103,7 @@
             <div class="alert alert-info text-center">No files have been shared with you yet.</div>
         {% endif %}
         <div class="text-center mt-4">
-            <a href="{% url 'file_upload' %}" class="btn btn-cyber"><i class="fas fa-arrow-left"></i> Back Upload Files</a>
+            <a href="{% url 'index' %}" class="btn btn-cyber"><i class="fas fa-arrow-left"></i>  Back</a>
         </div>
     </div>
     <footer>

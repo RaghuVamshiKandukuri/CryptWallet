@@ -37,7 +37,7 @@ urlpatterns = [
     path('shared-files/', shared_files, name='shared_files'),
 
     path('share_file/<int:file_id>/', share_file, name='share_file'),
-    
+
 
     
 
