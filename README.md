@@ -104,35 +104,36 @@ Regex: ^\d{2}[a-zA-Z]{3}\d{4,5}$
 
 
 ```
-CryptWallet/
-├── .venv/                 # Virtual environment
-├── .vscode/               # VS Code workspace settings
-├── CryptWallet/           # Django project settings
-│   ├── __init__.py
-│   ├── settings.py        # Project settings
-│   ├── urls.py            # Main URL routing
-│   ├── wsgi.py            # WSGI entry point
-│   ├── asgi.py            # ASGI entry point (if using ASGI)
-│   ├── utils.py           # Utility functions (custom helpers)
-│   ├── views.py           # Main view functions
-│   ├── signal.py          # Django signals (if used)
-│   └── forms.py           # Django forms for handling input
-├── vault/                 # Main app for file storage & encryption
-│   ├── __init__.py
-│   ├── admin.py           # Django admin configuration
-│   ├── apps.py            # App configuration
-│   ├── models.py          # Database models (Users, Encrypted Files)
-│   ├── urls.py            # App-specific URL routing
-│   ├── views.py           # Views for handling requests
-│   ├── migrations/        # Database migrations
-│   ├── templates/         # HTML templates for frontend
-│   │   └── vault/         # Subdirectory for Vault app
-│   │       └── auth/      # Authentication-related templates
-│   └── static/            # Static files (CSS, JS, images)
-├── db.sqlite3             # SQLite database
-├── manage.py              # Django management script
-├── .gitignore             # Git ignore file
-└── README.md              # Project documentation
+
+ CryptWallet/
+ ├── .venv/                      # Virtual environment
+ ├── .vscode/                    # VS Code workspace settings
+ ├── CryptWallet/                 # Django project settings
+ │   ├── __init__.py
+ │   ├── settings.py              # Project settings
+ │   ├── urls.py                  # Main URL routing
+ │   ├── wsgi.py                  # WSGI entry point
+ │   ├── asgi.py                  # ASGI entry point (if using ASGI)
+ │   ├── utils.py                  # Utility functions (custom helpers)
+ │   ├── views.py                  # Main view functions
+ │   ├── signal.py                 # Django signals (if used)
+ │   └── forms.py                  # Django forms for handling input
+ ├── vault/                        # Main app for file storage & encryption
+ │   ├── __init__.py
+ │   ├── admin.py                  # Django admin configuration
+ │   ├── apps.py                    # App configuration
+ │   ├── models.py                 # Database models (Users, Encrypted Files)
+ │   ├── urls.py                   # App-specific URL routing
+ │   ├── views.py                  # Views for handling requests
+ │   ├── migrations/               # Database migrations
+ │   ├── templates/                # HTML templates for frontend
+ │   │    └── vault/                # Subdirectory for Vault app
+ │   │        └── auth/             # Authentication-related templates
+ │   └── static/                    # Static files (CSS, JS, images)
+ ├── db.sqlite3                      # SQLite database
+ ├── manage.py                       # Django management script
+ ├── .gitignore                       # Git ignore file
+ └── README.md                        # Project documentation
 ```
 ```
 
